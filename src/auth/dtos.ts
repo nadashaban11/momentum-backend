@@ -24,7 +24,7 @@ export class SignUpDto{
     avatarUrl!: string;
 }
 
-export class SignInDto {
+export class loginDto {
   @IsEmail({}, { message: 'Please provide a valid email' })
   email!: string;
 

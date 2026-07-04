@@ -24,7 +24,7 @@ export class AuthService {
         };
     }
 
-    async signIn(email: string, password: string){
+    async login(email: string, password: string){
         const user = await this.userService.findByEmail(email);
 
         if(user == null){
