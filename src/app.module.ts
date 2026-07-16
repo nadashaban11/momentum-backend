@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChallengesModule } from './challenges/challenges.module';
+import { ParticipationsModule } from './participations/participations.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ChallengesModule } from './challenges/challenges.module';
         synchronize: true, // only in development
       }),
     }),
+    ParticipationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

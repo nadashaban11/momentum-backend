@@ -4,14 +4,14 @@ import { Repository, MoreThanOrEqual } from 'typeorm';
 import { Challenge } from './challenge.entity';
 import { Participation } from '../participations/participation.entity';
 import { CreateChallengeDto } from './dtos';
+import { ParticipationsService } from 'src/participations/participations.service';
 
 @Injectable()
 export class ChallengesService {
   constructor(
     @InjectRepository(Challenge)
     private readonly challengeRepository: Repository<Challenge>,
-    @InjectRepository(Participation)
-    private readonly participationRepository: Repository<Participation>,
+    private readonly participationsService: ParticipationsService,
   ) {}
 
   async create(ownerId: string, dto: CreateChallengeDto): Promise<Challenge> {
@@ -60,59 +60,14 @@ export class ChallengesService {
     };
   }
 
-  // join Chllenge 
-  async joinChallenge(userId: string, challengeId: string): Promise<Participation> {
+  async joinChallenge(userId: string, challengeId: string) {
     const challenge = await this.challengeRepository.findOne({ where: { id: challengeId } });
-    if (!challenge) {
-      throw new NotFoundException('Challenge not found');
-    }
-
-    // user cannot join challenge after it ends
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const endDate = new Date(challenge.endDate);
-
-    if (today > endDate) {
-      throw new BadRequestException('challenge has already ended');
-    }
-
-    try {
-      const participation = this.participationRepository.create({
-        userId,
-        challengeId,
-      });
-      return await this.participationRepository.save(participation);
-    } catch (error: any) {
-      if (error.code === '23505') { 
-        throw new ConflictException('You have already joined this challenge');
-      }
-      throw error;
-    }
+    if (!challenge) throw new NotFoundException('Challenge not found');
+    
+    return await this.participationsService.join(userId, challengeId);
   }
 
-  // 5. leave challenge 
   async leaveChallenge(userId: string, challengeId: string): Promise<void> {
-    const challenge = await this.challengeRepository.findOne({ where: { id: challengeId } });
-    if (!challenge) {
-      throw new NotFoundException('Challenge not found');
-    }
-
-    // User cannot leave challenge after it starts
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startDate = new Date(challenge.startDate);
-
-    if (today >= startDate) {
-      throw new BadRequestException('Cannot leave a challenge after it has started');
-    }
-
-    const result = await this.participationRepository.delete({
-      userId,
-      challengeId,
-    });
-
-    if (result.affected === 0) {
-      throw new NotFoundException('You are not a participant in this challenge');
-    }
+    return await this.participationsService.leave(userId, challengeId);
   }
 }
