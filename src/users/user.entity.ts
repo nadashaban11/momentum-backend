@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Challenge } from "src/challenges/challenge.entity";
+import { Participation } from "src/participations/participation.entity";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 
 @Entity('users')
 export class User{
@@ -25,4 +27,10 @@ export class User{
 
     @UpdateDateColumn()
     updatedAt!: Date;
+
+    @OneToMany(() => Challenge, (challenge) => challenge.owner)
+    challenges!: Challenge[];
+
+    @OneToMany(() => Participation, (participation) => participation.user)
+    participations!: Participation[];
 }
