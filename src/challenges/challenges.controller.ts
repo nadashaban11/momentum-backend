@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dtos';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,19 +19,19 @@ export class ChallengesController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return await this.challengesService.findById(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/join')
-  async join(@Req() req: any, @Param('id') id: string) {
+  async join(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return await this.challengesService.joinChallenge(req.user.id, id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id/leave')
-  async leave(@Req() req: any, @Param('id') id: string) {
+  async leave(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     await this.challengesService.leaveChallenge(req.user.id, id);
     return { message: 'Successfully left the challenge' };
   }
