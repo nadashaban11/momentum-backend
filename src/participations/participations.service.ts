@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Participation } from './participation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { Challenge } from 'src/challenges/challenge.entity';
 
 
@@ -13,6 +13,21 @@ export class ParticipationsService {
     @InjectRepository(Challenge) 
     private readonly challengeRepository: Repository<Challenge>,
   ) {}
+
+  async findOne(id: string, queryRunner?: QueryRunner) :Promise<Participation>{
+
+    const repo = queryRunner 
+      ? queryRunner.manager.getRepository(Participation) 
+      : this.participationRepository;
+
+    const participation = await repo.findOne(
+      {where: {id}}
+    );
+    if(!participation){
+      throw new NotFoundException('Participation not found');
+    }
+    return participation;
+  }
 
   async join(userId: string, challengeId: string) {
     const challenge = await this.challengeRepository.findOne({ where: { id: challengeId } });
@@ -62,4 +77,16 @@ export class ParticipationsService {
       throw new NotFoundException('You are not a participant in this challenge');
     }
   }
+
+async updateStreak(participationId: string, queryRunner?: QueryRunner) {
+  const repo = queryRunner 
+    ? queryRunner.manager.getRepository(Participation) 
+    : this.participationRepository;
+
+  const participation = await this.findOne(participationId, queryRunner);
+
+  participation.currentStreak++; 
+  
+  await repo.save(participation);
+}
 }
