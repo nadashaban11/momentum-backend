@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChallengesModule } from './challenges/challenges.module';
 import { ParticipationsModule } from './participations/participations.module';
 import { CheckInsModule } from './check-ins/check-ins.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CheckInsModule } from './check-ins/check-ins.module';
     }),
     ParticipationsModule,
     CheckInsModule,
+    LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
