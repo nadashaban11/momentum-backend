@@ -24,6 +24,7 @@ export class LeaderboardService {
         rank: index + 1,
         username: item.username,
         currentStreak: Number(item.currentStreak || 0),
+        longestStreak: Number(item.longestStreak || 0),
         completionRate: Number(Number(item.completionRate || 0).toFixed(2)),
       })),
     };

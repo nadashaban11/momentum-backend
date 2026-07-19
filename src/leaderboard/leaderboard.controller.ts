@@ -1,6 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { LeaderboardService } from './leaderboard.service';
-import { get } from 'http';
 
 @Controller('challenges')
 export class LeaderboardController {

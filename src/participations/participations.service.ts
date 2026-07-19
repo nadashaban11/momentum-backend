@@ -86,6 +86,10 @@ export class ParticipationsService {
     const participation = await this.findOne(participationId, queryRunner);
 
     participation.currentStreak++; 
+
+    if (participation.currentStreak > participation.longestStreak) {
+      participation.longestStreak = participation.currentStreak;
+    }
     
     await repo.save(participation);
   }
@@ -98,6 +102,7 @@ export class ParticipationsService {
       .select([
         'user.username as username',
         'COALESCE(participation.currentStreak, 0) as currentStreak',
+        'COALESCE(participation.longestStreak, 0) as longestStreak',
         'COALESCE((CAST(participation.totalCheckins AS FLOAT) / :totalDays) * 100, 0) as completionRate'
       ])
       .orderBy('currentStreak', 'DESC')
