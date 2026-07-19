@@ -78,15 +78,32 @@ export class ParticipationsService {
     }
   }
 
-async updateStreak(participationId: string, queryRunner?: QueryRunner) {
-  const repo = queryRunner 
-    ? queryRunner.manager.getRepository(Participation) 
-    : this.participationRepository;
+  async updateStreak(participationId: string, queryRunner?: QueryRunner) {
+    const repo = queryRunner 
+      ? queryRunner.manager.getRepository(Participation) 
+      : this.participationRepository;
 
-  const participation = await this.findOne(participationId, queryRunner);
+    const participation = await this.findOne(participationId, queryRunner);
 
-  participation.currentStreak++; 
-  
-  await repo.save(participation);
-}
+    participation.currentStreak++; 
+    
+    await repo.save(participation);
+  }
+
+  async getLeaderboardData(challengeId: string, totalDays: number) {
+    return await this.participationRepository
+      .createQueryBuilder('participation')
+      .leftJoin('participation.user', 'user')
+      .where('participation.challengeId = :challengeId', { challengeId })
+      .select([
+        'user.username as username',
+        'COALESCE(participation.currentStreak, 0) as currentStreak',
+        'COALESCE((CAST(participation.totalCheckins AS FLOAT) / :totalDays) * 100, 0) as completionRate'
+      ])
+      .orderBy('currentStreak', 'DESC')
+      .addOrderBy('completionRate', 'DESC')
+      .addOrderBy('participation.totalCheckins', 'DESC')
+      .setParameter('totalDays', totalDays)
+      .getRawMany();
+  }
 }
