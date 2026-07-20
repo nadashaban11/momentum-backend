@@ -87,6 +87,8 @@ export class ParticipationsService {
 
     participation.currentStreak++; 
 
+    participation.lastCheckInDate = new Date();
+
     if (participation.currentStreak > participation.longestStreak) {
       participation.longestStreak = participation.currentStreak;
     }
@@ -110,5 +112,23 @@ export class ParticipationsService {
       .addOrderBy('participation.totalCheckins', 'DESC')
       .setParameter('totalDays', totalDays)
       .getRawMany();
+  }
+
+  async resetMissedStreaks(): Promise<number> {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const result = await this.participationRepository
+      .createQueryBuilder()
+      .update(Participation)
+      .set({ currentStreak: 0 })
+      .where('currentStreak > 0')
+      .andWhere('(lastCheckInDate < :yesterday OR lastCheckInDate IS NULL)', {
+        yesterday,
+      })
+      .execute();
+
+    return result.affected || 0; // returns no of users who missed their streaks
   }
 }

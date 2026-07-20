@@ -27,6 +27,9 @@ export class Participation {
   @CreateDateColumn()
   joinedAt!: Date;
 
+  @Column({ type: 'timestamp', nullable: true })
+  lastCheckInDate?: Date;
+
   @ManyToOne(() => User, (user) => user.participations, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user!: User;
