@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual } from 'typeorm';
+import { Repository, MoreThanOrEqual, LessThanOrEqual, MoreThan } from 'typeorm';
 import { Challenge } from './challenge.entity';
 import { Participation } from '../participations/participation.entity';
 import { CreateChallengeDto } from './dtos';
@@ -69,5 +69,49 @@ export class ChallengesService {
 
   async leaveChallenge(userId: string, challengeId: string): Promise<void> {
     return await this.participationsService.leave(userId, challengeId);
+  }
+
+  async getHomeFeed() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+  
+    const format = (challenges: Challenge[]) =>
+      challenges.map((ch) => ({
+        ...ch,
+        participantsCount: ch.participations?.length || 0,
+      }));
+
+    const active = await this.challengeRepository.find({
+      where: {
+        startDate: LessThanOrEqual(today),
+        endDate: MoreThanOrEqual(today),
+      },
+      relations: { participations: true }, 
+      order: { startDate: 'DESC' },
+      take: 5, // top recent active 5 challenges
+    });
+
+    const upcoming = await this.challengeRepository.find({
+      where: {
+        startDate: MoreThan(today),
+      },
+      relations: { participations: true },
+      order: { startDate: 'ASC' },
+      take: 5,
+    });
+
+    const allPublic = await this.challengeRepository.find({
+      where: { isPublic: true },
+      relations: { participations: true },
+    });
+    const featured = allPublic
+      .sort((a, b) => (b.participations?.length || 0) - (a.participations?.length || 0))
+      .slice(0, 5);
+
+    return {
+      featuredChallenges: format(featured),
+      activeChallenges: format(active),
+      upcomingChallenges: format(upcoming),
+    };
   }
 }

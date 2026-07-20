@@ -78,9 +78,44 @@ export class ParticipationsService {
     }
   }
 
+  async getUserChallenges(userId: string) {
+    const participations =  await this.participationRepository.find({
+      where: { userId },
+      select: {
+        id: true,             
+        currentStreak: true,
+        longestStreak: true,
+        totalCheckins: true,
+        challenge: {         
+          id: true,
+          title: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
+      relations: {
+        challenge: true,
+      },
+      order: {
+        challenge: {
+          startDate: 'DESC',
+        },
+      },
+    });
+    return participations.map((p) => ({
+    participationId: p.id,
+    challengeId: p.challenge.id,
+    title: p.challenge.title,
+    currentStreak: p.currentStreak,
+    longestStreak: p.longestStreak,
+    startDate: p.challenge.startDate,
+    endDate: p.challenge.endDate,
+  }));
+  }
+
   async updateStreak(participationId: string, queryRunner?: QueryRunner) {
-    const repo = queryRunner 
-      ? queryRunner.manager.getRepository(Participation) 
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(Participation)
       : this.participationRepository;
 
     const participation = await this.findOne(participationId, queryRunner);
