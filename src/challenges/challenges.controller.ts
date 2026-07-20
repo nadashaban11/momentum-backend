@@ -2,10 +2,13 @@ import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Req, UseGuar
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dtos';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ParticipationsService } from 'src/participations/participations.service';
 
 @Controller('challenges')
 export class ChallengesController {
-  constructor(private readonly challengesService: ChallengesService) {}
+  constructor(private readonly challengesService: ChallengesService,
+    private readonly participationsService: ParticipationsService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -16,6 +19,13 @@ export class ChallengesController {
   @Get()
   async findAll() {
     return await this.challengesService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMyChallenges(@Req() req: any) {
+    const userId = req.user.id;
+    return await this.participationsService.getUserChallenges(userId);
   }
 
   @Get(':id')
