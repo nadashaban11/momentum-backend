@@ -76,10 +76,13 @@ export class ChallengesService {
     today.setHours(0, 0, 0, 0); 
   
     const format = (challenges: Challenge[]) =>
-      challenges.map((ch) => ({
-        ...ch,
-        participantsCount: ch.participations?.length || 0,
-      }));
+      challenges.map((ch) => {
+        const { participations, ...rest } = ch; // no need to return array of participations for each challenge I will return only total number of them
+        return {
+          ...rest,
+          participantsCount: participations?.length || 0, 
+        };
+      });
 
     const active = await this.challengeRepository.find({
       where: {
