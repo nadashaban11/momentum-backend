@@ -1,98 +1,115 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Momentum Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> **Build consistency. Maintain momentum.**  
+> A NestJS API designed to drive daily consistency through challenge tracking, atomic check-ins, and an automated streak engine.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+##  Overview
 
-## Description
+Many people start personal challenges (like *100 Days of Code*, reading goals, or any challenges) but lose momentum after a few days due to a lack of structure, tracking, and strict accountability. 
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Momentum** solves this by providing a reliable backend system that enforces daily discipline. Unlike standard todo apps, Momentum introduces a **Strict Streak Engine**—if you miss a daily check-in, your streak breaks. No retroactive check-ins, no cheating the system.
 
-## Project setup
+---
 
+**Momentum High-level Diagram**
+
+![alt text](image.png)
+
+---
+
+
+## Technical Highlights
+
+This repository is built with a focus on **clean architecture, strict domain rules, and scalability**, moving beyond simple CRUD operations:
+
+* **Strict Business Logic & Data Integrity:** Implements real-world domain rules (e.g., locking challenge entry after the start date, preventing duplicate daily check-ins, and auto-joining creators to their challenges).
+* **Automated Streak Engine:** Utilizes scheduled background tasks (**Cron Jobs**) running at midnight to recalculate active streaks and automatically flag missed ones.
+* **Smart Leaderboard Sorting:** Dynamic ranking algorithm that orders participants by `Current Streak`, tie-breaking with `Completion Rate`, and finally `Total Check-ins`.
+
+* **Interactive Documentation:** Fully integrated with Swagger UI for client-side integration and instant API testing.
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+| :--- | :--- |
+| **Framework** | [NestJS](https://nestjs.com/) (TypeScript) |
+| **Database** | PostgreSQL |
+| **ORM** | TypeORM |
+| **Authentication** | JWT (JSON Web Tokens) + Passport |
+| **Validation** | Class-Validator & Class-Transformer |
+| **Documentation** | Swagger |
+| **Containerization** | Docker & Docker Compose |
+
+---
+
+##  Core Business Rules 
+
+To make momentum meaningful, the API enforces strict accountability:
+1. **One Check-in Per Day:** A user can only submit one successful check-in per calendar day.
+2. **No Late Joiners:** Users cannot join a challenge once its `startDate` has passed.
+3. **No Retroactive Check-ins:** Forgot to check in yesterday? The streak breaks. You cannot check in for past dates.
+4. **Creator Auto-Enrollment:** When a user creates a challenge, they are automatically enrolled as the first participant.
+5. **Locked Challenges:** Users cannot leave a challenge after it begins, and owners cannot delete challenges that have active participants.
+
+---
+
+## Automated Background Jobs
+
+The platform relies on scheduled tasks (`@nestjs/schedule`) to maintain data consistency without manual intervention:
+
+* **Midnight Streak Processing :** Scans all active participations, increments streaks for successful check-ins, and resets broken streaks to zero for missed days.
+
+---
+
+##  Getting Started (Local Development)
+
+### 1. Prerequisites
+* Node.js (v18+)
+* Docker & Docker Compose
+* Git
+
+### 2. Clone & Install
 ```bash
-$ npm install
+git clone https://github.com/nadashaban11/momentum-backend.git
+cd momentum-backend
+npm install
+```
+### 3. Environment Setup
+the example environment file and configure your local database credentials:
+
+```Bash
+cp .env.example .env
+```
+### 4. Run with Docker (Recommended)
+Spin up the PostgreSQL database and the NestJS server instantly using Docker Compose:
+
+```Bash
+docker compose up --build 
 ```
 
-## Compile and run the project
+Or run locally without Docker:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```Bash
+# Start development server with watch mode
+npm run start:dev
 ```
 
-## Run tests
+## API Documentation (Swagger)
+Once the server is running, explore and test all endpoints interactively via the Swagger UI:
 
-```bash
-# unit tests
-$ npm run test
+Visit: http://localhost:3000/api
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
-```
+### What's Next 
 
-## Deployment
+To ensure the highest quality for the MVP, several features were intentionally will be rolled out in future iterations:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- Private Challenges (Invite codes & shareable links) & Team vs. Team Challenges
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- Gamification (Badges, Milestone Achievements, and Avatar customization)
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+- Advanced Analytics (Weekly progress graphs and email insights)
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Social Accountability (Push notifications & reminder nudges)
