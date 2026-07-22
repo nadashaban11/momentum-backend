@@ -4,6 +4,6 @@ import { ParticipationsModule } from 'src/participations/participations.module';
 
 @Module({
   imports: [ParticipationsModule],
-  providers: [TasksService]
+  providers: [TasksService],
 })
 export class TasksModule {}

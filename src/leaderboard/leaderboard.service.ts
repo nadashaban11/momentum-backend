@@ -6,17 +6,21 @@ import { LeaderboardResponseDto } from './dtos';
 @Injectable()
 export class LeaderboardService {
   constructor(
-    private readonly participationsService: ParticipationsService, 
-    private readonly challengesService: ChallengesService,       
+    private readonly participationsService: ParticipationsService,
+    private readonly challengesService: ChallengesService,
   ) {}
 
   async getLeaderboard(challengeId: string): Promise<LeaderboardResponseDto> {
     const challenge = await this.challengesService.findById(challengeId);
     const startDate = new Date(challenge.startDate);
     const endDate = new Date(challenge.endDate);
-    const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24) + 1;
+    const totalDays =
+      (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24) + 1;
 
-    const rawData = await this.participationsService.getLeaderboardData(challengeId, totalDays);
+    const rawData = await this.participationsService.getLeaderboardData(
+      challengeId,
+      totalDays,
+    );
 
     return {
       challengeId,

@@ -1,6 +1,16 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThanOrEqual, MoreThan } from 'typeorm';
+import {
+  Repository,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  MoreThan,
+} from 'typeorm';
 import { Challenge } from './challenge.entity';
 import { Participation } from '../participations/participation.entity';
 import { CreateChallengeDto } from './dtos';
@@ -34,7 +44,7 @@ export class ChallengesService {
       order: { createdAt: 'DESC' },
       relations: {
         owner: true,
-      }, 
+      },
     });
   }
 
@@ -45,9 +55,9 @@ export class ChallengesService {
       relations: {
         owner: true,
         participations: {
-            user: true, 
+          user: true,
         },
-    },
+      },
     });
 
     if (!challenge) {
@@ -61,9 +71,11 @@ export class ChallengesService {
   }
 
   async joinChallenge(userId: string, challengeId: string) {
-    const challenge = await this.challengeRepository.findOne({ where: { id: challengeId } });
+    const challenge = await this.challengeRepository.findOne({
+      where: { id: challengeId },
+    });
     if (!challenge) throw new NotFoundException('Challenge not found');
-    
+
     return await this.participationsService.join(userId, challengeId);
   }
 
@@ -73,14 +85,14 @@ export class ChallengesService {
 
   async getHomeFeed() {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
-  
+    today.setHours(0, 0, 0, 0);
+
     const format = (challenges: Challenge[]) =>
       challenges.map((ch) => {
         const { participations, ...rest } = ch; // no need to return array of participations for each challenge I will return only total number of them
         return {
           ...rest,
-          participantsCount: participations?.length || 0, 
+          participantsCount: participations?.length || 0,
         };
       });
 
@@ -89,7 +101,7 @@ export class ChallengesService {
         startDate: LessThanOrEqual(today),
         endDate: MoreThanOrEqual(today),
       },
-      relations: { participations: true }, 
+      relations: { participations: true },
       order: { startDate: 'DESC' },
       take: 5, // top recent active 5 challenges
     });
@@ -108,7 +120,10 @@ export class ChallengesService {
       relations: { participations: true },
     });
     const featured = allPublic
-      .sort((a, b) => (b.participations?.length || 0) - (a.participations?.length || 0))
+      .sort(
+        (a, b) =>
+          (b.participations?.length || 0) - (a.participations?.length || 0),
+      )
       .slice(0, 5);
 
     return {

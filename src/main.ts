@@ -8,7 +8,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('Momentum API')
-    .setDescription('The Momentum backend documentation for challenge management, streaks, and check-ins.')
+    .setDescription(
+      'The Momentum backend documentation for challenge management, streaks, and check-ins.',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

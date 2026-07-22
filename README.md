@@ -1,4 +1,5 @@
 # 🚀 Momentum Backend
+[![Momentum CI](https://github.com/nadashaban11/momentum-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/nadashaban11/momentum-backend/actions/workflows/ci.yml)
 
 > **Build consistency. Maintain momentum.**  
 > A NestJS API designed to drive daily consistency through challenge tracking, atomic check-ins, and an automated streak engine.

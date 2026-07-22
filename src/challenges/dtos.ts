@@ -8,17 +8,26 @@ import {
 } from 'class-validator';
 
 export class CreateChallengeDto {
-  @ApiProperty({ example: 'Backend Sprint', description: 'Title of the challenge' })
+  @ApiProperty({
+    example: 'Backend Sprint',
+    description: 'Title of the challenge',
+  })
   @IsString()
   @IsNotEmpty({ message: 'Title is required' })
   title!: string;
 
-  @ApiProperty({ example: 'Building momentum with NestJS and TypeORM', description: 'Challenge details' })
+  @ApiProperty({
+    example: 'Building momentum with NestJS and TypeORM',
+    description: 'Challenge details',
+  })
   @IsString()
   @IsNotEmpty({ message: 'Description is required' })
   description!: string;
 
-  @ApiProperty({ example: '2026-07-25', description: 'Start date (YYYY-MM-DD)' })
+  @ApiProperty({
+    example: '2026-07-25',
+    description: 'Start date (YYYY-MM-DD)',
+  })
   @IsDateString(
     {},
     { message: 'Start date must be a valid date string (YYYY-MM-DD)' },
@@ -32,7 +41,11 @@ export class CreateChallengeDto {
   )
   endDate!: string;
 
-  @ApiPropertyOptional({ example: true, default: true, description: 'Whether the challenge is public' })
+  @ApiPropertyOptional({
+    example: true,
+    default: true,
+    description: 'Whether the challenge is public',
+  })
   @IsOptional()
   @IsBoolean()
   isPublic?: boolean = true;

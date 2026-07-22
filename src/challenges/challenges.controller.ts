@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dtos';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -6,7 +16,8 @@ import { ParticipationsService } from 'src/participations/participations.service
 
 @Controller('challenges')
 export class ChallengesController {
-  constructor(private readonly challengesService: ChallengesService,
+  constructor(
+    private readonly challengesService: ChallengesService,
     private readonly participationsService: ParticipationsService,
   ) {}
 
