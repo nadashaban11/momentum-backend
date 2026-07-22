@@ -1,0 +1,34 @@
+name: Momentum CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  ci-pipeline:
+    if: "!contains(github.event.head_commit.message, '#skipchecks')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linter (Clean Code Check)
+        run: npm run lint
+
+      - name: Run Unit Tests
+        run: npm run test
+
+      - name: Build NestJS Project
+        run: npm run build
