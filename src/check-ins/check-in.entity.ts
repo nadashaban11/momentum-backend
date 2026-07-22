@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Unique } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Unique,
+} from 'typeorm';
 import { Participation } from '../participations/participation.entity';
 
 @Entity('check_ins')
@@ -11,12 +19,14 @@ export class CheckIn {
   participationId!: string;
 
   @Column({ type: 'date' })
-  date!: string; 
+  date!: string;
 
   @CreateDateColumn()
   createdAt!: Date;
 
-  @ManyToOne(() => Participation, (participation) => participation.checkIns, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Participation, (participation) => participation.checkIns, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'participationId' })
   participation!: Participation;
 }

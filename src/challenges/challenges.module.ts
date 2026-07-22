@@ -10,6 +10,6 @@ import { HomeController } from './home.controller';
   imports: [TypeOrmModule.forFeature([Challenge]), ParticipationsModule],
   controllers: [ChallengesController, HomeController],
   providers: [ChallengesService],
-  exports: [ChallengesService], 
+  exports: [ChallengesService],
 })
 export class ChallengesModule {}

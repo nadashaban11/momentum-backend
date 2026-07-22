@@ -9,6 +9,6 @@ import { ParticipationsModule } from 'src/participations/participations.module';
 @Module({
   imports: [TypeOrmModule.forFeature([CheckIn]), ParticipationsModule],
   providers: [CheckInsService],
-  controllers: [CheckInsController]
+  controllers: [CheckInsController],
 })
 export class CheckInsModule {}

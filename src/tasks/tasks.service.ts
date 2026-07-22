@@ -16,7 +16,8 @@ export class TasksService {
     this.logger.log('[Cron Job] Starting daily streak reset...');
 
     try {
-      const affectedRows = await this.participationsService.resetMissedStreaks();
+      const affectedRows =
+        await this.participationsService.resetMissedStreaks();
 
       this.logger.log(
         `✅ [Cron Job] Completed! Reset streaks for ${affectedRows} participations.`,

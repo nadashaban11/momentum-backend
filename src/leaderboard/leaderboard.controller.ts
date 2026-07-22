@@ -3,12 +3,10 @@ import { LeaderboardService } from './leaderboard.service';
 
 @Controller('challenges')
 export class LeaderboardController {
-  constructor(
-    private readonly leaderboardService: LeaderboardService
-  ){}
+  constructor(private readonly leaderboardService: LeaderboardService) {}
 
   @Get(':id/leaderboard')
-  async getLeaderboard(@Param('id') challengeId: string){
+  async getLeaderboard(@Param('id') challengeId: string) {
     return await this.leaderboardService.getLeaderboard(challengeId);
   }
 }

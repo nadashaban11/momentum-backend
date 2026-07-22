@@ -37,7 +37,7 @@ import { TasksModule } from './tasks/tasks.module';
     ParticipationsModule,
     CheckInsModule,
     LeaderboardModule,
-    TasksModule
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

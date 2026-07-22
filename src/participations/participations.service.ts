@@ -1,61 +1,66 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Participation } from './participation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryRunner, Repository } from 'typeorm';
 import { Challenge } from 'src/challenges/challenge.entity';
-
 
 @Injectable()
 export class ParticipationsService {
   constructor(
     @InjectRepository(Participation)
     private readonly participationRepository: Repository<Participation>,
-    @InjectRepository(Challenge) 
+    @InjectRepository(Challenge)
     private readonly challengeRepository: Repository<Challenge>,
   ) {}
 
-  async findOne(id: string, queryRunner?: QueryRunner) :Promise<Participation>{
-
-    const repo = queryRunner 
-      ? queryRunner.manager.getRepository(Participation) 
+  async findOne(id: string, queryRunner?: QueryRunner): Promise<Participation> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(Participation)
       : this.participationRepository;
 
-    const participation = await repo.findOne(
-      {where: {id}}
-    );
-    if(!participation){
+    const participation = await repo.findOne({ where: { id } });
+    if (!participation) {
       throw new NotFoundException('Participation not found');
     }
     return participation;
   }
 
   async join(userId: string, challengeId: string) {
-    const challenge = await this.challengeRepository.findOne({ where: { id: challengeId } });
+    const challenge = await this.challengeRepository.findOne({
+      where: { id: challengeId },
+    });
     if (!challenge) throw new NotFoundException('Challenge not found');
     const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const endDate = new Date(challenge.endDate);
-    
-        if (today > endDate) {
-          throw new BadRequestException('challenge has already ended');
-        }
-    
-        try {
-          const participation = this.participationRepository.create({
-            userId,
-            challengeId,
-          });
-          return await this.participationRepository.save(participation);
-        } catch (error: any) {
-          if (error.code === '23505') { 
-            throw new ConflictException('You have already joined this challenge');
-          }
-          throw error;
-        }
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(challenge.endDate);
+
+    if (today > endDate) {
+      throw new BadRequestException('challenge has already ended');
+    }
+
+    try {
+      const participation = this.participationRepository.create({
+        userId,
+        challengeId,
+      });
+      return await this.participationRepository.save(participation);
+    } catch (error: any) {
+      if (error.code === '23505') {
+        throw new ConflictException('You have already joined this challenge');
+      }
+      throw error;
+    }
   }
 
   async leave(userId: string, challengeId: string): Promise<void> {
-    const challenge = await this.challengeRepository.findOne({ where: { id: challengeId } });
+    const challenge = await this.challengeRepository.findOne({
+      where: { id: challengeId },
+    });
     if (!challenge) {
       throw new NotFoundException('Challenge not found');
     }
@@ -65,7 +70,9 @@ export class ParticipationsService {
     const startDate = new Date(challenge.startDate);
 
     if (today >= startDate) {
-      throw new BadRequestException('Cannot leave a challenge after it has started');
+      throw new BadRequestException(
+        'Cannot leave a challenge after it has started',
+      );
     }
 
     const result = await this.participationRepository.delete({
@@ -74,19 +81,21 @@ export class ParticipationsService {
     });
 
     if (result.affected === 0) {
-      throw new NotFoundException('You are not a participant in this challenge');
+      throw new NotFoundException(
+        'You are not a participant in this challenge',
+      );
     }
   }
 
   async getUserChallenges(userId: string) {
-    const participations =  await this.participationRepository.find({
+    const participations = await this.participationRepository.find({
       where: { userId },
       select: {
-        id: true,             
+        id: true,
         currentStreak: true,
         longestStreak: true,
         totalCheckins: true,
-        challenge: {         
+        challenge: {
           id: true,
           title: true,
           startDate: true,
@@ -103,14 +112,14 @@ export class ParticipationsService {
       },
     });
     return participations.map((p) => ({
-    participationId: p.id,
-    challengeId: p.challenge.id,
-    title: p.challenge.title,
-    currentStreak: p.currentStreak,
-    longestStreak: p.longestStreak,
-    startDate: p.challenge.startDate,
-    endDate: p.challenge.endDate,
-  }));
+      participationId: p.id,
+      challengeId: p.challenge.id,
+      title: p.challenge.title,
+      currentStreak: p.currentStreak,
+      longestStreak: p.longestStreak,
+      startDate: p.challenge.startDate,
+      endDate: p.challenge.endDate,
+    }));
   }
 
   async updateStreak(participationId: string, queryRunner?: QueryRunner) {
@@ -120,14 +129,14 @@ export class ParticipationsService {
 
     const participation = await this.findOne(participationId, queryRunner);
 
-    participation.currentStreak++; 
+    participation.currentStreak++;
 
     participation.lastCheckInDate = new Date();
 
     if (participation.currentStreak > participation.longestStreak) {
       participation.longestStreak = participation.currentStreak;
     }
-    
+
     await repo.save(participation);
   }
 
@@ -140,7 +149,7 @@ export class ParticipationsService {
         'user.username as username',
         'COALESCE(participation.currentStreak, 0) as currentStreak',
         'COALESCE(participation.longestStreak, 0) as longestStreak',
-        'COALESCE((CAST(participation.totalCheckins AS FLOAT) / :totalDays) * 100, 0) as completionRate'
+        'COALESCE((CAST(participation.totalCheckins AS FLOAT) / :totalDays) * 100, 0) as completionRate',
       ])
       .orderBy('currentStreak', 'DESC')
       .addOrderBy('completionRate', 'DESC')

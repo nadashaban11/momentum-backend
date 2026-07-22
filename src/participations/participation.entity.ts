@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Unique, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Unique,
+  OneToMany,
+} from 'typeorm';
 import { User } from '../users/user.entity';
 import { Challenge } from '../challenges/challenge.entity';
 import { CheckIn } from '../check-ins/check-in.entity';
@@ -34,7 +43,9 @@ export class Participation {
   @JoinColumn({ name: 'userId' })
   user!: User;
 
-  @ManyToOne(() => Challenge, (challenge) => challenge.participations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Challenge, (challenge) => challenge.participations, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'challengeId' })
   challenge!: Challenge;
 
