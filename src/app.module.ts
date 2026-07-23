@@ -25,13 +25,12 @@ import { TasksModule } from './tasks/tasks.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USER'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
+        url: configService.get<string>('DB_URI'),
         autoLoadEntities: true,
         synchronize: true, // only in development
+        ssl: {
+          rejectUnauthorized: false,
+        },
       }),
     }),
     ParticipationsModule,
