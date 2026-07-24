@@ -4,6 +4,10 @@
 > **Build consistency. Maintain momentum.**  
 > A NestJS API designed to drive daily consistency through challenge tracking, atomic check-ins, and an automated streak engine.
 
+🔗 **[Explore Live Swagger Documentation & Test API](https://momentum-backend-production-4873.up.railway.app/api)**
+
+---
+
 ##  Overview
 
 Many people start personal challenges (like *100 Days of Code*, reading goals, or any challenges) but lose momentum after a few days due to a lack of structure, tracking, and strict accountability. 
