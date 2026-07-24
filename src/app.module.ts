@@ -27,7 +27,7 @@ import { TasksModule } from './tasks/tasks.module';
         type: 'postgres',
         url: configService.get<string>('DB_URI'),
         autoLoadEntities: true,
-        synchronize: true, // only in development
+        synchronize: false,
         ssl: {
           rejectUnauthorized: false,
         },
