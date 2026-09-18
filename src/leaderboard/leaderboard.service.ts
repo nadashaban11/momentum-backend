@@ -10,8 +10,14 @@ export class LeaderboardService {
     private readonly challengesService: ChallengesService,
   ) {}
 
-  async getLeaderboard(challengeId: string): Promise<LeaderboardResponseDto> {
-    const challenge = await this.challengesService.findById(challengeId);
+  async getLeaderboard(
+    challengeId: string,
+    userId?: string,
+  ): Promise<LeaderboardResponseDto> {
+    const challenge = await this.challengesService.findById(
+      challengeId,
+      userId,
+    );
     const startDate = new Date(challenge.startDate);
     const endDate = new Date(challenge.endDate);
     const totalDays =

@@ -28,9 +28,12 @@ import { TasksModule } from './tasks/tasks.module';
         url: configService.get<string>('DB_URI'),
         autoLoadEntities: true,
         synchronize: false,
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ssl: (() => {
+          const uri = configService.get<string>('DB_URI') || '';
+          const isLocal =
+            uri.includes('localhost') || uri.includes('127.0.0.1');
+          return isLocal ? false : { rejectUnauthorized: false };
+        })(),
       }),
     }),
     ParticipationsModule,

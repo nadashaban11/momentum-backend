@@ -37,8 +37,14 @@ export class ParticipationsService {
     if (!challenge) throw new NotFoundException('Challenge not found');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const startDate = new Date(challenge.startDate);
     const endDate = new Date(challenge.endDate);
 
+    if (today >= startDate) {
+      throw new BadRequestException(
+        'Cannot join a challenge after it has started',
+      );
+    }
     if (today > endDate) {
       throw new BadRequestException('challenge has already ended');
     }
