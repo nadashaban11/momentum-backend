@@ -31,6 +31,9 @@ export class Challenge {
   @Column({ default: true })
   isPublic!: boolean; // To handle Visibility (Public / Private)
 
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  inviteCode!: string | null;
+
   // Explicit FK for performance
   @Column()
   ownerId!: string;

@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -12,9 +13,9 @@ import {
   MoreThan,
 } from 'typeorm';
 import { Challenge } from './challenge.entity';
-import { Participation } from '../participations/participation.entity';
 import { CreateChallengeDto } from './dtos';
 import { ParticipationsService } from 'src/participations/participations.service';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class ChallengesService {
@@ -32,6 +33,10 @@ export class ChallengesService {
     const challenge = this.challengeRepository.create({
       ...dto,
       ownerId,
+      // Private gets a code immediately so owner can share without a 2nd call.
+      ...(dto.isPublic === false
+        ? { inviteCode: randomBytes(6).toString('hex') }
+        : {}),
     });
 
     return await this.challengeRepository.save(challenge);
@@ -49,7 +54,8 @@ export class ChallengesService {
   }
 
   // explore challenge details
-  async findById(id: string): Promise<any> {
+  // Public -> anyone. Private -> owner/participant only, anonymous gets 404 to hide existence.
+  async findById(id: string, userId?: string): Promise<any> {
     const challenge = await this.challengeRepository.findOne({
       where: { id },
       relations: {
@@ -64,8 +70,30 @@ export class ChallengesService {
       throw new NotFoundException('Challenge not found');
     }
 
+    if (!challenge.isPublic) {
+      if (!userId) {
+        throw new NotFoundException('Challenge not found');
+      }
+      const isOwner = challenge.ownerId === userId;
+      const isMember = challenge.participations.some(
+        (p) => p.userId === userId,
+      );
+      if (!isOwner && !isMember) {
+        throw new ForbiddenException(
+          'You do not have access to this private challenge',
+        );
+      }
+    }
+
     return {
       ...challenge,
+      // Only owner sees the code. Members see details but no code,
+      // so they can't re-share without owner consent.
+      // Joining still works because joinByInviteCode looks it up internally.
+      inviteCode:
+        userId && challenge.ownerId === userId
+          ? challenge.inviteCode
+          : undefined,
       participantsCount: challenge.participations.length,
     };
   }
@@ -75,6 +103,11 @@ export class ChallengesService {
       where: { id: challengeId },
     });
     if (!challenge) throw new NotFoundException('Challenge not found');
+    if (!challenge.isPublic) {
+      throw new ForbiddenException(
+        'This is a private challenge. Use an invite code to join.',
+      );
+    }
 
     return await this.participationsService.join(userId, challengeId);
   }
@@ -98,6 +131,7 @@ export class ChallengesService {
 
     const active = await this.challengeRepository.find({
       where: {
+        isPublic: true,
         startDate: LessThanOrEqual(today),
         endDate: MoreThanOrEqual(today),
       },
@@ -108,6 +142,7 @@ export class ChallengesService {
 
     const upcoming = await this.challengeRepository.find({
       where: {
+        isPublic: true,
         startDate: MoreThan(today),
       },
       relations: { participations: true },
@@ -131,5 +166,35 @@ export class ChallengesService {
       activeChallenges: format(active),
       upcomingChallenges: format(upcoming),
     };
+  }
+
+  async generateInviteCode(ownerId: string, challengeId: string): Promise<{ inviteCode: string }> {
+    const challenge = await this.challengeRepository.findOne({
+      where: { id: challengeId },
+    });
+  
+    if (!challenge) throw new NotFoundException('Challenge not found');
+  
+    if (challenge.ownerId !== ownerId) {
+      throw new ForbiddenException('Only the owner can generate an invite code');
+    }
+  
+    const code = randomBytes(6).toString('hex'); // 12 hex chars, unguessable
+    challenge.inviteCode = code;
+    await this.challengeRepository.save(challenge);
+  
+    return { inviteCode: code };
+  }
+  
+  async joinByInviteCode(userId: string, code: string) {
+    const challenge = await this.challengeRepository.findOne({
+      where: { inviteCode: code },
+    });
+  
+    if (!challenge) {
+      throw new NotFoundException('Invalid or expired invite code');
+    }
+  
+    return await this.participationsService.join(userId, challenge.id);
   }
 }

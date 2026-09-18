@@ -12,6 +12,7 @@ import {
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dtos';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 import { ParticipationsService } from 'src/participations/participations.service';
 
 @Controller('challenges')
@@ -39,9 +40,20 @@ export class ChallengesController {
     return await this.participationsService.getUserChallenges(userId);
   }
 
+  // Static routes before ':id' params — avoids shadowing.
+  @UseGuards(JwtAuthGuard)
+  @Post('join-by-code/:code')
+  async joinByCode(@Req() req: any, @Param('code') code: string) {
+    return await this.challengesService.joinByInviteCode(req.user.id, code);
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
-  async findById(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.challengesService.findById(id);
+  async findById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: any,
+  ) {
+    return await this.challengesService.findById(id, req.user?.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -55,5 +67,11 @@ export class ChallengesController {
   async leave(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     await this.challengesService.leaveChallenge(req.user.id, id);
     return { message: 'Successfully left the challenge' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/invite')
+  async generateInvite(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
+    return await this.challengesService.generateInviteCode(req.user.id, id);
   }
 }
